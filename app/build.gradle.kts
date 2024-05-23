@@ -1,9 +1,26 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-}
 
+}
 android {
+// Enable buildConfig feature
+    buildFeatures {
+        buildConfig = true}
+        // Load the properties from the local.properties file
+    val properties = Properties()
+    val localPropertiesFile = File(rootProject.rootDir, "local.properties")
+    if (localPropertiesFile.exists()) {
+        properties.load(FileInputStream(localPropertiesFile))
+    }
+
+    val apiKey = properties.getProperty("API_KEY")
+
+
+
     namespace = "com.example.mrenglish"
     compileSdk = 34
 
@@ -18,6 +35,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Define the build config field
+        if (apiKey != null) {
+            buildConfigField("String", "API_KEY", "\"$apiKey\"")
+        } else {
+            throw GradleException("API_KEY not found in local.properties")
+        }
+
     }
 
     buildTypes {
@@ -59,6 +84,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +92,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // ViewModel utilities for Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    //for api
+    implementation(libs.generativeai)
+
+
 }
